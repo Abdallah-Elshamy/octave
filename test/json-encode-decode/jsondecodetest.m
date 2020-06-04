@@ -19,3 +19,14 @@ json = '[null, null, null]';
 exp  = [NaN; NaN; NaN];
 act  = jsondecode (json);
 assert (isequaln (exp, act));
+
+%% Test 2: decode Boolean, Number and String values
+
+assert (jsondecode ('true'));
+assert (~ jsondecode ('false'));
+
+act  = jsondecode ('123.45');
+assert (isequal (123.45, act));
+
+act  = jsondecode ('"hello there"');
+assert (isequal ('hello there', act));
