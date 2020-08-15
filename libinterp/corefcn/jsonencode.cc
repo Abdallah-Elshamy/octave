@@ -601,15 +601,29 @@ jsonencode (containers.Map({'foo'; 'bar'; 'baz'}, [1, 2, 3]))
         error ("jsonencode: Valid options are \'ConvertInfAndNaN\'"
                " and \'PrettyWriter\'");
     }
+
+  // Disable the PrettyWriter option if an old version of RapidJSON exists
+  #if ! defined (HAVE_RAPIDJSON_DEV)
+     if (PrettyWriter)
+       {
+         warning ("RapidJSON 1.1.0 or older found, but latest development "
+                  "version needed. Octave will not be able to support "
+                  "\'PrettyWriter\' option in \'jsonencode\'.");
+         PrettyWriter = false;
+       }
+  #endif
+
   rapidjson::StringBuffer json;
   if (PrettyWriter)
     // In order to use the "PrettyWriter" option, you must use the development
     // version of RapidJSON. The release causes an error in compilation.
     {
-      rapidjson::PrettyWriter<rapidjson::StringBuffer, rapidjson::UTF8<>,
-                              rapidjson::UTF8<>, rapidjson::CrtAllocator,
-                              rapidjson::kWriteNanAndInfFlag> writer (json);
-      encode (writer, args(0), ConvertInfAndNaN);
+      #if defined (HAVE_RAPIDJSON_DEV)
+         rapidjson::PrettyWriter<rapidjson::StringBuffer, rapidjson::UTF8<>,
+                                 rapidjson::UTF8<>, rapidjson::CrtAllocator,
+                                 rapidjson::kWriteNanAndInfFlag> writer (json);
+         encode (writer, args(0), ConvertInfAndNaN);
+      #endif
     }
   else
     {
